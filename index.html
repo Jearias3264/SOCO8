@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vehículos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px;
+            height: 100vh;
+            position: relative;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px gray;
+            display: inline-block;
+            width: 50%;
+            margin-top: 100px;
+            position: relative;
+        }
+        input, select {
+            display: block;
+            margin: 10px auto;
+            padding: 15px;
+            width: 80%;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .button {
+            background: #00a2ff;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            border: none;
+            cursor: pointer;
+            width: 85%;
+            border-radius: 5px;
+            box-shadow: inset 0px -4px 0px rgba(0, 0, 0, 0.2), 2px 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease-in-out;
+        }
+        .button:hover {
+            background: #008ace;
+            transform: translateY(-1px);
+        }
+        .button:active {
+            box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.4);
+            transform: translateY(1px);
+        }
+        .logo {
+            position: absolute;
+            top: -80px;
+            right: 10px;
+            width: 200px;
+        }
+        .fecha-hora {
+            position: absolute;
+            top: -40px;
+            left: 10px;
+            background: #87CEFA;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            color: #000000; /* negro */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo-azul.jpg" alt="Logo" class="logo">
+        <div class="fecha-hora" id="fechaHoraDisplay"></div>
+        <h2>REGISTRO INGRESO VEHÍCULOS MANTENIMIENTO</h2>
+        <input type="text" id="cedula" placeholder="Cédula Conductor" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+        <input type="text" id="lateral" placeholder="Lateral" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+        <select id="motivo">
+            <option value="">Seleccione un motivo</option>
+            <option value="Llantas">Llantas</option>
+            <option value="Caja">Caja</option>
+            <option value="Motor">Motor</option>
+        </select>
+        <input type="hidden" id="fechaHora">
+        <button class="button" onclick="registrar()">REGISTRAR</button>
+    </div>
+    
+    <script>
+        let registros = [];
+
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            const fechaHora = ahora.toLocaleString();
+            document.getElementById("fechaHora").value = fechaHora;
+            document.getElementById("fechaHoraDisplay").innerText = `HOY: ${fechaHora}`;
+        }
+
+        function registrar() {
+            let cedula = document.getElementById("cedula").value;
+            let lateral = document.getElementById("lateral").value;
+            let motivo = document.getElementById("motivo").value;
+            let fechaHora = document.getElementById("fechaHora").value;
+            
+            if (!cedula || !lateral || !motivo) {
+                alert("Todos los campos son obligatorios");
+                return;
+            }
+            
+            registros.push([cedula, lateral, motivo, fechaHora]);
+            let data = [["Cédula", "Lateral", "Motivo", "Fecha y Hora"], ...registros];
+            let ws = XLSX.utils.aoa_to_sheet(data);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Registro");
+            XLSX.writeFile(wb, "registro_vehiculos.xlsx");
+            
+            // Limpiar los campos después de registrar
+            document.getElementById("cedula").value = "";
+            document.getElementById("lateral").value = "";
+            document.getElementById("motivo").value = "";
+            actualizarFechaHora();
+        }
+
+        window.onload = actualizarFechaHora;
+        setInterval(actualizarFechaHora, 60000); // Actualiza cada minuto
+    </script>
+</body>
+</html>
+
